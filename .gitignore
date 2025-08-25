@@ -1,0 +1,10 @@
+# dotnet
+bin/
+obj/
+
+# node
+node_modules/
+dist/
+
+# others
+.env
