@@ -18,11 +18,14 @@ jobs:
 
       - name: Build & Push Backend
         run: |
-          docker build -t ghcr.io/${{ github.repository_owner }}/movie-backend:${{ github.sha }} ./Server/Api
-          docker push ghcr.io/${{ github.repository_owner }}/movie-backend:${{ github.sha }}
-    
+          REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          docker build -t ghcr.io/${REPO_OWNER}/movie-backend:${{ github.sha }} ./Server/Api
+          docker push ghcr.io/${REPO_OWNER}/movie-backend:${{ github.sha }}
+      
       - name: Build & Push Frontend
         run: |
-          docker build -t ghcr.io/${{ github.repository_owner }}/movie-frontend:${{ github.sha }} ./Web/client
-          docker push ghcr.io/${{ github.repository_owner }}/movie-frontend:${{ github.sha }}
+          REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          docker build -t ghcr.io/${REPO_OWNER}/movie-frontend:${{ github.sha }} ./Server/Web
+          docker push ghcr.io/${REPO_OWNER}/movie-frontend:${{ github.sha }}
+
 
