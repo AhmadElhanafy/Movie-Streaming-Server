@@ -1,10 +1,24 @@
+using Api.Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
+// Connect to Postgres inside k8s
+var connectionString = builder.Configuration.GetConnectionString("Postgres");
+builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
+
 // Add services to the container
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
 
 // Enable Swagger only in development
 if (app.Environment.IsDevelopment())
@@ -14,7 +28,8 @@ if (app.Environment.IsDevelopment())
 
     // Auto-open Swagger UI in browser
     var url = "http://localhost:5169/swagger";
-    await Task.Run(() => {
+    await Task.Run(() =>
+    {
         try
         {
             Thread.Sleep(1000);
@@ -29,5 +44,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.MapControllers();
 
 app.Run();
