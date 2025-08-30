@@ -29,7 +29,6 @@ jobs:
       - name: Build & Push Frontend
         run: |
           REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          docker build -t ghcr.io/${REPO_OWNER}/movie-frontend:${{ github.sha }} ./Server/Web
+          docker build -t ghcr.io/${REPO_OWNER}/movie-frontend:${{ github.sha }} ./Web/client
           docker push ghcr.io/${REPO_OWNER}/movie-frontend:${{ github.sha }}
-
 
