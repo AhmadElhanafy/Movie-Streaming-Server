@@ -18,11 +18,11 @@ jobs:
 
       - name: Build & Push Backend
         run: |
-          docker build -t ghcr.io/<your-username>/movie-backend:${{ github.sha }} ./Api
-          docker push ghcr.io/<your-username>/movie-backend:${{ github.sha }}
+          docker build -t ghcr.io/<AhmadElhanafy>/movie-backend:${{ github.sha }} ./Api
+          docker push ghcr.io/<AhmadElhanafy>/movie-backend:${{ github.sha }}
 
       - name: Build & Push Frontend
         run: |
-          docker build -t ghcr.io/<your-username>/movie-frontend:${{ github.sha }} ./Web
-          docker push ghcr.io/<your-username>/movie-frontend:${{ github.sha }}
+          docker build -t ghcr.io/<AhmadElhanafy>/movie-frontend:${{ github.sha }} ./Web
+          docker push ghcr.io/<AhmadElhanafy>/movie-frontend:${{ github.sha }}
     
