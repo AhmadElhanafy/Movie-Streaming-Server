@@ -1,4 +1,4 @@
-name: Build and Push Docker Images
+name: Build and Deploy
 
 on:
   push:
@@ -11,32 +11,55 @@ permissions:
   packages: write
 
 jobs:
-  build:
-
+  build-backend:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-
       - name: Log in to GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
       - name: Build & Push Backend
         run: |
           REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           docker build -t ghcr.io/${REPO_OWNER}/movie-backend:${{ github.sha }} ./Server/Api
           docker push ghcr.io/${REPO_OWNER}/movie-backend:${{ github.sha }}
-      
+
+  build-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       - name: Build & Push Frontend
         run: |
           REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           docker build -t ghcr.io/${REPO_OWNER}/movie-frontend:${{ github.sha }} ./Web/client
           docker push ghcr.io/${REPO_OWNER}/movie-frontend:${{ github.sha }}
 
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [build-backend, build-frontend]
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Package Helm chart
+        run: |
+          helm package ./Helm/movieapp --destination ./artifacts
+          ls -lh ./artifacts
+
       - name: Connect GitHub runner to Tailscale
         uses: tailscale/github-action@v2
         with:
           authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
-          
+
+      - name: Copy Helm chart package to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.K3S_SERVER }}
+          username: ${{ secrets.K3S_USER }}
+          key: ${{ secrets.K3S_SSH_KEY }}
+          source: "artifacts/*.tgz"
+          target: "~/"
+
       - name: Deploy to k3s via Helm
         uses: appleboy/ssh-action@v1.2.0
         with:
@@ -44,9 +67,9 @@ jobs:
           username: ${{ secrets.K3S_USER }}
           key: ${{ secrets.K3S_SSH_KEY }}
           script: |
-            helm upgrade --install movieapp ./Helm/movieapp \
-            --namespace movieapp \
-            --create-namespace \
-            --set backend.image.tag=${GITHUB_SHA} \
-            --set frontend.image.tag=${GITHUB_SHA}
-
+            CHART=$(ls ~/movieapp-*.tgz | sort | tail -n1)
+            helm upgrade --install movieapp $CHART \
+              --namespace movieapp \
+              --create-namespace \
+              --set backend.image.tag=${GITHUB_SHA} \
+              --set frontend.image.tag=${GITHUB_SHA}
