@@ -70,7 +70,9 @@ jobs:
             export GITHUB_SHA=${{ github.sha }}
             export CONNECTION_STRING="Host=postgres-postgresql.db.svc.cluster.local;Port=5432;Database=movies;Username=postgres;Password=${{ secrets.DB_PASSWORD }}"
       
-            cat <<EOF | kubectl apply -f -
+            # Create a temporary manifest file on the remote server
+            # The 'tee' command ensures the file is fully written before proceeding
+            cat <<EOF | tee /tmp/migration-job.yaml > /dev/null
             apiVersion: batch/v1
             kind: Job
             metadata:
@@ -88,11 +90,12 @@ jobs:
                       value: "${CONNECTION_STRING}"
                   restartPolicy: OnFailure
             EOF
-            
-            sleep 5
-            
-            kubectl wait --for=condition=complete job/backend-db-migration-${GITHUB_SHA} --timeout=5m
-            kubectl delete job backend-db-migration-${GITHUB_SHA}
+      
+            # Apply the manifest and immediately wait for it to complete
+            # The two commands are now directly linked
+            kubectl apply -f /tmp/migration-job.yaml && \
+            kubectl wait --for=condition=complete job/backend-db-migration-${GITHUB_SHA} --timeout=5m && \
+            kubectl delete -f /tmp/migration-job.yaml
 
       - name: Deploy to k3s via Helm
         uses: appleboy/ssh-action@v1.2.0
