@@ -70,6 +70,5 @@ jobs:
             CHART=$(ls ~/artifacts/movieapp-0.1.0.tgz | sort | tail -n1)
             helm upgrade --install movieapp $CHART \
               --namespace movieapp \
-              --create-namespace \
               --set backend.image.tag=${GITHUB_SHA} \
               --set frontend.image.tag=${GITHUB_SHA}
