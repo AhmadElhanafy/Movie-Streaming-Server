@@ -31,4 +31,14 @@ jobs:
           REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           docker build -t ghcr.io/${REPO_OWNER}/movie-frontend:${{ github.sha }} ./Web/client
           docker push ghcr.io/${REPO_OWNER}/movie-frontend:${{ github.sha }}
+          
+      - name: Deploy to k3s
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.K3S_SERVER }}
+          username: ${{ secrets.K3S_USER }}
+          key: ${{ secrets.K3S_SSH_KEY }}
+          script: |
+            kubectl set image deployment/backend backend=ghcr.io/ahmadelhanafy/movie-backend:${{ github.sha }} -n movieapp
+            kubectl set image deployment/frontend frontend=ghcr.io/ahmadelhanafy/movie-frontend:${{ github.sha }} -n movieapp
 
