@@ -68,14 +68,13 @@ jobs:
           key: ${{ secrets.K3S_SSH_KEY }}
           script: |
             export GITHUB_SHA=${{ github.sha }}
-
             export CONNECTION_STRING="Host=postgres-postgresql.db.svc.cluster.local;Port=5432;Database=movies;Username=postgres;Password=${{ secrets.DB_PASSWORD }}"
       
             cat <<EOF | kubectl apply -f -
             apiVersion: batch/v1
             kind: Job
             metadata:
-              name: backend-db-migration-${GITHUB_SHA} # Add the SHA to make the job name unique
+              name: backend-db-migration-${GITHUB_SHA}
               namespace: movieapp
             spec:
               template:
@@ -89,6 +88,9 @@ jobs:
                       value: "${CONNECTION_STRING}"
                   restartPolicy: OnFailure
             EOF
+            
+            sleep 5 # <-- Add this line to pause for a few seconds
+            
             kubectl wait --for=condition=complete job/backend-db-migration-${GITHUB_SHA} --timeout=5m
             kubectl delete job backend-db-migration-${GITHUB_SHA}
 
