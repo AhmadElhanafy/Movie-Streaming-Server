@@ -69,9 +69,9 @@ jobs:
           script: |
             export GITHUB_SHA=${{ github.sha }}
             export CONNECTION_STRING="Host=postgres-postgresql.db.svc.cluster.local;Port=5432;Database=movies;Username=postgres;Password=${{ secrets.DB_PASSWORD }}"
-      
+            
             # Create a temporary manifest file on the remote server
-            # The 'tee' command ensures the file is fully written before proceeding
+            # The 'tee' command writes the manifest to a file
             cat <<EOF | tee /tmp/migration-job.yaml > /dev/null
             apiVersion: batch/v1
             kind: Job
@@ -90,11 +90,28 @@ jobs:
                       value: "${CONNECTION_STRING}"
                   restartPolicy: OnFailure
             EOF
-      
-            # Apply the manifest and immediately wait for it to complete
-            # The two commands are now directly linked
-            kubectl apply -f /tmp/migration-job.yaml && \
-            kubectl wait --for=condition=complete job/backend-db-migration-${GITHUB_SHA} --timeout=5m && \
+            
+            # Apply the manifest
+            kubectl apply -f /tmp/migration-job.yaml
+            
+            # Use a loop to check the job status until it's complete
+            for i in $(seq 1 12); do
+              # Check if the job is complete, successful, or has failed
+              if kubectl get job backend-db-migration-${GITHUB_SHA} -n movieapp -o jsonpath='{.status.conditions[?(@.type=="Complete")].status}' | grep "True"; then
+                echo "Job completed successfully."
+                break
+              fi
+              
+              if kubectl get job backend-db-migration-${GITHUB_SHA} -n movieapp -o jsonpath='{.status.failed}' | grep -E "[1-9]"; then
+                echo "Job failed."
+                exit 1
+              fi
+              
+              echo "Waiting for job to complete..."
+              sleep 5
+            done
+            
+            # Clean up the job after the loop
             kubectl delete -f /tmp/migration-job.yaml
 
       - name: Deploy to k3s via Helm
