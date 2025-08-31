@@ -58,7 +58,7 @@ jobs:
           username: ${{ secrets.K3S_USER }}
           key: ${{ secrets.K3S_SSH_KEY }}
           source: "artifacts/*.tgz"
-          target: "/home/${{ secrets.K3S_USER }}/artifacts/"
+          target: "/home/${{ secrets.K3S_USER }}/"
 
       - name: Deploy to k3s via Helm
         uses: appleboy/ssh-action@v1.2.0
