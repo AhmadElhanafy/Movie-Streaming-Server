@@ -1,0 +1,5 @@
+apiVersion: v2
+name: movieapp
+description: Helm chart for Movie Streaming App
+version: 0.1.0
+appVersion: "1.0"

@@ -1,0 +1,17 @@
+namespace: movieapp
+
+backend:
+  image:
+    repository: ghcr.io/ahmadelhanafy/movie-backend
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  service:
+    port: 5555
+
+frontend:
+  image:
+    repository: ghcr.io/ahmadelhanafy/movie-frontend
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  service:
+    port: 80
