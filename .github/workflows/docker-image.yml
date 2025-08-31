@@ -58,7 +58,7 @@ jobs:
           username: ${{ secrets.K3S_USER }}
           key: ${{ secrets.K3S_SSH_KEY }}
           source: "artifacts/*.tgz"
-          target: "~/"
+          target: "/home/${{ secrets.K3S_USER }}/artifacts/"
 
       - name: Deploy to k3s via Helm
         uses: appleboy/ssh-action@v1.2.0
@@ -67,7 +67,7 @@ jobs:
           username: ${{ secrets.K3S_USER }}
           key: ${{ secrets.K3S_SSH_KEY }}
           script: |
-            CHART=$(ls ~/movieapp-*.tgz | sort | tail -n1)
+            CHART=$(ls ~/artifacts/movieapp-${GITHUB_SHA}.tgz)
             helm upgrade --install movieapp $CHART \
               --namespace movieapp \
               --create-namespace \
