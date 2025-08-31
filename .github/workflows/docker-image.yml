@@ -31,6 +31,11 @@ jobs:
           REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           docker build -t ghcr.io/${REPO_OWNER}/movie-frontend:${{ github.sha }} ./Web/client
           docker push ghcr.io/${REPO_OWNER}/movie-frontend:${{ github.sha }}
+
+      - name: Connect GitHub runner to Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
           
       - name: Deploy to k3s
         uses: appleboy/ssh-action@v1.2.0
