@@ -89,7 +89,7 @@ jobs:
                   restartPolicy: OnFailure
             EOF
             
-            sleep 5 # <-- Add this line to pause for a few seconds
+            sleep 5
             
             kubectl wait --for=condition=complete job/backend-db-migration-${GITHUB_SHA} --timeout=5m
             kubectl delete job backend-db-migration-${GITHUB_SHA}
