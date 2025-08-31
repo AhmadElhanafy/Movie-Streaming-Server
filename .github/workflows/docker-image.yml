@@ -67,7 +67,7 @@ jobs:
           username: ${{ secrets.K3S_USER }}
           key: ${{ secrets.K3S_SSH_KEY }}
           script: |
-            CHART=$(ls ~/movieapp-0.1.0.tgz | sort | tail -n1)
+            CHART=$(ls ~/artifacts/movieapp-0.1.0.tgz | sort | tail -n1)
             helm upgrade --install movieapp $CHART \
               --namespace movieapp \
               --create-namespace \
