@@ -67,7 +67,10 @@ jobs:
           username: ${{ secrets.K3S_USER }}
           key: ${{ secrets.K3S_SSH_KEY }}
           script: |
+            kubectl get namespace movieapp || kubectl create namespace movieapp
+
             CHART=$(ls ~/artifacts/movieapp-0.1.0.tgz | sort | tail -n1)
+            
             helm upgrade --install movieapp $CHART \
               --namespace movieapp \
               --set backend.image.tag=${GITHUB_SHA} \
