@@ -1,24 +1,16 @@
-# Use a single-stage Dockerfile for simplicity and to ensure the SDK is present
-FROM mcr.microsoft.com/dotnet/sdk:9.0
-
-# Set the working directory
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /app
 
-# Copy the project file and restore dependencies
-COPY *.csproj ./
+COPY Api.csproj ./
 RUN dotnet restore
 
-# Copy the rest of the application code
 COPY . .
 
-# Install the dotnet-ef tool
-RUN dotnet tool install --global dotnet-ef
-
-# Ensure the tool's location is in the PATH
-ENV PATH="$PATH:/root/.dotnet/tools"
-
-# Publish the application
 RUN dotnet publish "Api.csproj" -c Release -o /app/publish
 
-# Set the entrypoint to run the migration
-ENTRYPOINT ["dotnet", "ef", "database", "update", "--no-build"]
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS migration
+WORKDIR /app
+
+COPY --from=build /app/publish .
+
+ENTRYPOINT ["dotnet", "Api.dll", "migrate"]
