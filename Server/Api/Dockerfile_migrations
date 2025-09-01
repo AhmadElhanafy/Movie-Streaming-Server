@@ -2,7 +2,7 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /app
 
 COPY . .
-RUN dotnet publish "YourProject.csproj" -c Release -o /app/publish
+RUN dotnet publish "Api.csproj" -c Release -o /app/publish
 
 RUN dotnet tool install --global dotnet-ef
 ENV PATH="$PATH:/root/.dotnet/tools"
@@ -11,4 +11,4 @@ FROM mcr.microsoft.com/dotnet/aspnet:latest AS final
 WORKDIR /app
 COPY --from=build /app/publish .
 
-ENTRYPOINT ["dotnet", "YourProject.dll", "migrate"]
+ENTRYPOINT ["dotnet", "Api.dll", "migrate"]
