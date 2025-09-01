@@ -126,6 +126,7 @@ jobs:
             done
             
             # Clean up the job after the loop
+            kubectl logs job/backend-db-migration-${GITHUB_SHA} -n movieapp
             kubectl delete -f /tmp/migration-job.yaml
 
       - name: Deploy to k3s via Helm
