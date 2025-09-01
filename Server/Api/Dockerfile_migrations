@@ -1,20 +1,14 @@
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS migration
-WORKDIR /src
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /app
 
-# Copy only the project file first (for caching restore)
-COPY Api.csproj ./
+COPY . .
+RUN dotnet publish "YourProject.csproj" -c Release -o /app/publish
 
-# Restore dependencies
-RUN dotnet restore
-
-# Copy the rest of the code
-COPY . ./
-RUN dotnet build -c Release
-
-# Install EF CLI
 RUN dotnet tool install --global dotnet-ef
 ENV PATH="$PATH:/root/.dotnet/tools"
 
-# Set working dir for EF commands
-WORKDIR /src
-ENTRYPOINT ["dotnet-ef"]
+FROM mcr.microsoft.com/dotnet/aspnet:latest AS final
+WORKDIR /app
+COPY --from=build /app/publish .
+
+ENTRYPOINT ["dotnet", "YourProject.dll", "migrate"]
