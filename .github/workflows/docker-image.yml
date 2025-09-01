@@ -96,7 +96,7 @@ jobs:
                   containers:
                   - name: migration-container
                     image: "ghcr.io/ahmadelhanafy/movie-backend-migrations:${GITHUB_SHA}"
-                    command: ["dotnet", "ef", "database", "update"]
+                    command: ["dotnet", "ef", "database", "update", , "--no-build"]
                     env:
                     - name: ConnectionStrings__DefaultConnection
                       value: "${CONNECTION_STRING}"
