@@ -1,0 +1,13 @@
+# Migration image based on SDK
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS migration
+WORKDIR /src
+
+# Copy source code (so EF can find Migrations and DbContext)
+COPY . .
+
+# Install dotnet-ef CLI globally
+RUN dotnet tool install --global dotnet-ef
+ENV PATH="$PATH:/root/.dotnet/tools"
+
+# Default to EF entrypoint
+ENTRYPOINT ["dotnet", "ef"]

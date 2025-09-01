@@ -35,9 +35,21 @@ jobs:
           docker build -t ghcr.io/${REPO_OWNER}/movie-frontend:${{ github.sha }} ./Web/client
           docker push ghcr.io/${REPO_OWNER}/movie-frontend:${{ github.sha }}
 
+  build-migration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Build & Push migration
+        run: |
+          REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          docker build -f ./Server/Api/Dockerfile.migrations -t ghcr.io/${REPO_OWNER}/movie-backend-migrations:${{ github.sha }} ./Server/Api/
+          docker push ghcr.io/${REPO_OWNER}/movie-backend-migrations:${{ github.sha }}
+
   deploy:
     runs-on: ubuntu-latest
-    needs: [build-backend, build-frontend]
+    needs: [build-backend, build-frontend, build-migration]
     steps:
       - uses: actions/checkout@v3
 
@@ -83,7 +95,7 @@ jobs:
                 spec:
                   containers:
                   - name: migration-container
-                    image: "ghcr.io/ahmadelhanafy/movie-backend:${GITHUB_SHA}"
+                    image: "ghcr.io/ahmadelhanafy/movie-backend-migrations:${GITHUB_SHA}"
                     command: ["dotnet", "ef", "database", "update"]
                     env:
                     - name: ConnectionStrings__DefaultConnection
@@ -99,11 +111,13 @@ jobs:
               # Check if the job is complete, successful, or has failed
               if kubectl get job backend-db-migration-${GITHUB_SHA} -n movieapp -o jsonpath='{.status.conditions[?(@.type=="Complete")].status}' | grep "True"; then
                 echo "Job completed successfully."
+                kubectl logs job/backend-db-migration-${GITHUB_SHA} -n movieapp
                 break
               fi
               
               if kubectl get job backend-db-migration-${GITHUB_SHA} -n movieapp -o jsonpath='{.status.failed}' | grep -E "[1-9]"; then
                 echo "Job failed."
+                kubectl logs job/backend-db-migration-${GITHUB_SHA} -n movieapp
                 exit 1
               fi
               
