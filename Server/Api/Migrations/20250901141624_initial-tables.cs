@@ -1,60 +1,16 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Api.Data.Migrations
+namespace Api.Migrations
 {
     /// <inheritdoc />
-    public partial class initialmigrations : Migration
+    public partial class initialtables : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "Movies");
-
-            migrationBuilder.AlterColumn<string>(
-                name: "Username",
-                table: "Users",
-                type: "character varying(64)",
-                maxLength: 64,
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "text");
-
-            migrationBuilder.AlterColumn<Guid>(
-                name: "Id",
-                table: "Users",
-                type: "uuid",
-                nullable: false,
-                oldClrType: typeof(int),
-                oldType: "integer")
-                .OldAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-            migrationBuilder.AddColumn<DateTimeOffset>(
-                name: "CreatedAtUtc",
-                table: "Users",
-                type: "timestamp with time zone",
-                nullable: false,
-                defaultValueSql: "NOW()");
-
-            migrationBuilder.AddColumn<string>(
-                name: "DisplayName",
-                table: "Users",
-                type: "character varying(128)",
-                maxLength: 128,
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "ExternalId",
-                table: "Users",
-                type: "character varying(256)",
-                maxLength: 256,
-                nullable: true);
-
             migrationBuilder.CreateTable(
                 name: "LibraryPaths",
                 columns: table => new
@@ -86,6 +42,21 @@ namespace Api.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_People", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Users",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Username = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    DisplayName = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    ExternalId = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    CreatedAtUtc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false, defaultValueSql: "NOW()")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Users", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -225,17 +196,6 @@ namespace Api.Data.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Users_ExternalId",
-                table: "Users",
-                column: "ExternalId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Users_Username",
-                table: "Users",
-                column: "Username",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
                 name: "IX_LibraryPaths_Path",
                 table: "LibraryPaths",
                 column: "Path",
@@ -311,6 +271,17 @@ namespace Api.Data.Migrations
                 table: "StreamRenditions",
                 columns: new[] { "MediaItemId", "Width", "Height", "BitrateKbps" },
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_ExternalId",
+                table: "Users",
+                column: "ExternalId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Username",
+                table: "Users",
+                column: "Username",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -329,63 +300,13 @@ namespace Api.Data.Migrations
                 name: "StreamRenditions");
 
             migrationBuilder.DropTable(
+                name: "Users");
+
+            migrationBuilder.DropTable(
                 name: "MediaItems");
 
             migrationBuilder.DropTable(
                 name: "LibraryPaths");
-
-            migrationBuilder.DropIndex(
-                name: "IX_Users_ExternalId",
-                table: "Users");
-
-            migrationBuilder.DropIndex(
-                name: "IX_Users_Username",
-                table: "Users");
-
-            migrationBuilder.DropColumn(
-                name: "CreatedAtUtc",
-                table: "Users");
-
-            migrationBuilder.DropColumn(
-                name: "DisplayName",
-                table: "Users");
-
-            migrationBuilder.DropColumn(
-                name: "ExternalId",
-                table: "Users");
-
-            migrationBuilder.AlterColumn<string>(
-                name: "Username",
-                table: "Users",
-                type: "text",
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "character varying(64)",
-                oldMaxLength: 64);
-
-            migrationBuilder.AlterColumn<int>(
-                name: "Id",
-                table: "Users",
-                type: "integer",
-                nullable: false,
-                oldClrType: typeof(Guid),
-                oldType: "uuid")
-                .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-            migrationBuilder.CreateTable(
-                name: "Movies",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Genre = table.Column<string>(type: "text", nullable: false),
-                    ReleaseDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Title = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Movies", x => x.Id);
-                });
         }
     }
 }
