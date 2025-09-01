@@ -44,7 +44,7 @@ jobs:
       - name: Build & Push migration
         run: |
           REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          docker build -f ./Server/Api/Dockerfile.migrations -t ghcr.io/${REPO_OWNER}/movie-backend-migrations:${{ github.sha }} ./Server/Api/
+          docker build -f ./Server/Api/Dockerfile_migrations -t ghcr.io/${REPO_OWNER}/movie-backend-migrations:${{ github.sha }} ./Server/Api/
           docker push ghcr.io/${REPO_OWNER}/movie-backend-migrations:${{ github.sha }}
 
   deploy:
