@@ -12,7 +12,30 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
 var app = builder.Build();
+
+if (args.Length > 0 && args[0] == "migrate")
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
+        try
+        {
+            var dbContext = services.GetRequiredService<AppDbContext>();
+            dbContext.Database.Migrate();
+            Console.WriteLine("Database migrations applied successfully.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred while applying migrations: {ex.Message}");
+            Environment.Exit(1);
+        }
+    }
+    // Exit the application after migrations are complete
+    Environment.Exit(0);
+}
+
 
 // Enable Swagger only in development
 if (app.Environment.IsDevelopment())
