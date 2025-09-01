@@ -4,8 +4,8 @@ metadata:
   name: frontend
   namespace: {{ .Values.namespace }}
 spec:
-  selector:
-    type: NodePort
+  type: NodePort
+  selector:  
     app: frontend
   ports:
   - protocol: TCP
