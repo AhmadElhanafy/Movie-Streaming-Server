@@ -1,16 +1,17 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS migration
 WORKDIR /src
 
-# Copy everything
+# Copy everything from build context (./Server/Api)
 COPY . .
 
-# Restore + build
-RUN dotnet restore ./Server/Api/Api.csproj
-RUN dotnet build ./Server/Api/Api.csproj -c Release
+# Restore and build the project
+RUN dotnet restore Api.csproj
+RUN dotnet build Api.csproj -c Release
 
 # Install EF CLI
 RUN dotnet tool install --global dotnet-ef
 ENV PATH="$PATH:/root/.dotnet/tools"
 
+# Set working dir for EF
 WORKDIR /src
-ENTRYPOINT ["dotnet", "ef"]
+ENTRYPOINT ["dotnet-ef"]
