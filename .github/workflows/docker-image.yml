@@ -106,29 +106,6 @@ jobs:
             
             # Apply the manifest
             kubectl apply -f /tmp/migration-job.yaml
-            
-            # Use a loop to check the job status until it's complete
-            for i in $(seq 1 12); do
-              # Check if the job is complete, successful, or has failed
-              if kubectl get job backend-db-migration-${GITHUB_SHA} -n movieapp -o jsonpath='{.status.conditions[?(@.type=="Complete")].status}' | grep "True"; then
-                echo "Job completed successfully."
-                kubectl logs job/backend-db-migration-${GITHUB_SHA} -n movieapp
-                break
-              fi
-              
-              if kubectl get job backend-db-migration-${GITHUB_SHA} -n movieapp -o jsonpath='{.status.failed}' | grep -E "[1-9]"; then
-                echo "Job failed."
-                kubectl logs job/backend-db-migration-${GITHUB_SHA} -n movieapp
-                exit 1
-              fi
-              
-              echo "Waiting for job to complete..."
-              sleep 5
-            done
-            
-            # Clean up the job after the loop
-            kubectl logs job/backend-db-migration-${GITHUB_SHA} -n movieapp
-            kubectl delete -f /tmp/migration-job.yaml
 
       - name: Deploy to k3s via Helm
         uses: appleboy/ssh-action@v1.2.0
