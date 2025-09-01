@@ -96,8 +96,6 @@ jobs:
                   containers:
                   - name: migration-container
                     image: "ghcr.io/ahmadelhanafy/movie-backend-migrations:${GITHUB_SHA}"
-                    # The 'command' is now part of the Dockerfile's ENTRYPOINT.
-                    # Removing this avoids overriding the entrypoint.
                     env:
                     - name: ConnectionStrings__DefaultConnection
                       value: "${CONNECTION_STRING}"
