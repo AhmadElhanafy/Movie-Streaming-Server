@@ -3,6 +3,18 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Setup CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        policy =>
+        {
+            policy.WithOrigins("http://frontend")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
+
 // Connect to Postgres inside k8s
 var connectionString = builder.Configuration.GetConnectionString("Postgres");
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
@@ -59,6 +71,9 @@ if (app.Environment.IsDevelopment())
         catch { /* ignore errors */ }
     });
 }
+
+// Use CORS middleware before MapControllers
+app.UseCors("AllowFrontend");
 
 app.UseHttpsRedirection();
 app.MapControllers();
