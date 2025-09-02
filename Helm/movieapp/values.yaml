@@ -6,7 +6,7 @@ backend:
     tag: "latest"
     pullPolicy: IfNotPresent
   service:
-    port: 5555
+    port: 8080
 
 frontend:
   image:
