@@ -9,7 +9,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend",
         policy =>
         {
-            policy.WithOrigins("http://frontend")
+            policy.WithOrigins("frontend.movieapp.svc.cluster.local")
                   .AllowAnyHeader()
                   .AllowAnyMethod();
         });
