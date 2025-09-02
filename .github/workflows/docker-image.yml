@@ -91,6 +91,7 @@ jobs:
               name: backend-db-migration-${GITHUB_SHA}
               namespace: movieapp
             spec:
+              ttlSecondsAfterFinished: 120
               template:
                 spec:
                   containers:
