@@ -6,6 +6,7 @@ metadata:
 spec:
   podSelector: {}
   ingress:
+      - Ingress
     - from:
         - namespaceSelector:
             matchLabels:
