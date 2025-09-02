@@ -11,7 +11,7 @@ import { RouterOutlet } from '@angular/router';
 export class App {
   protected readonly title = signal('client');
 
-  responseMessage: string = '';
+  responseMessage: string = 'Super secret message!';
 
   constructor(private http: HttpClient) {}
 
