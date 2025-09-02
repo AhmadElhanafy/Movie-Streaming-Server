@@ -9,7 +9,7 @@ namespace Api.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok(new { message = "OK" });
+            return Ok(new { message = "This is thy message" });
         }
     }
 }
