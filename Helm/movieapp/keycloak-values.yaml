@@ -1,0 +1,40 @@
+global:
+  storageClass: ""
+
+image:
+  repository: bitnami/keycloak
+  tag: 26.0.5
+
+auth:
+  adminUser: admin
+  adminPassword: admin123
+
+postgresql:
+  enabled: false
+
+externalDatabase:
+  host: postgres-postgresql.db.svc.cluster.local
+  port: 5432
+  user: keycloak
+  database: keycloak
+  existingSecret: keycloak123
+  existingSecretPasswordKey: postgres123
+extraEnvVars:
+  - name: KC_PROXY
+    value: "edge"
+  - name: KC_HOSTNAME
+    value: "auth.movieapp.local"
+  - name: KC_HTTP_RELATIVE_PATH
+    value: "/"
+
+service:
+  type: ClusterIP
+  ports:
+    http: 8080
+
+ingress:
+  enabled: true
+  hostname: auth.movieapp.local
+  ingressClassName: nginx
+  pathType: Prefix
+  tls: []
