@@ -80,7 +80,6 @@ public class UserConfig : IEntityTypeConfiguration<User>
         e.HasKey(x => x.Id);
         e.Property(x => x.Username).IsRequired();
         e.HasIndex(x => x.Username).IsUnique();
-        e.HasIndex(x => x.ExternalId).IsUnique(false);
         e.Property(x => x.CreatedAtUtc).HasDefaultValueSql("NOW()");
     }
 }

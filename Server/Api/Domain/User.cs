@@ -13,9 +13,7 @@ public class User
 
     // Password hash & salt
     [MaxLength(256)] public string PasswordHash { get; set; } = string.Empty;
-    [MaxLength(128)] public string PasswordSalt { get; set; } = string.Empty;
-
-    [MaxLength(256)] public string? ExternalId { get; set; }
+    [MaxLength(256)] public string PasswordSalt { get; set; } = string.Empty;
 
     // Role / claims
     [MaxLength(32)] public string Role { get; set; } = "User";
