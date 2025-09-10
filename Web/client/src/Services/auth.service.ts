@@ -10,6 +10,7 @@ interface LoginResponse {
 @Injectable({
   providedIn: 'root'
 })
+
 export class AuthService {
   private tokenKey = 'jwt_token';
   private loggedIn = new BehaviorSubject<boolean>(this.hasToken());

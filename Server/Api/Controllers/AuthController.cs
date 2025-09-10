@@ -35,7 +35,7 @@ public class AuthController : ControllerBase
 
     private string GenerateJwtToken(User user)
     {
-        var key = Encoding.UTF8.GetBytes(_config["Jwt:Key"] ?? "ReplaceWithYourStrongSecretKey!");
+        var key = Encoding.UTF8.GetBytes(_config["Jwt:Key"]);
         var tokenHandler = new JwtSecurityTokenHandler();
         var tokenDescriptor = new SecurityTokenDescriptor
         {

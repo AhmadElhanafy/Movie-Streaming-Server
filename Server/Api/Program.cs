@@ -20,12 +20,24 @@ builder.Services.AddCors(options =>
         });
 });
 
-// ===== 2. Connect to Postgres inside k8s =====
-var connectionString = builder.Configuration.GetConnectionString("Postgres");
-builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
+// ===== 2. Connect to Postgres =====
+string connectionString;
+
+if (builder.Environment.IsDevelopment())
+{
+    // Local Docker database
+    connectionString = builder.Configuration.GetConnectionString("PostgresDocker");
+}
+else
+{
+    // Postgres inside k8s
+    connectionString = builder.Configuration.GetConnectionString("Postgres");
+}
+
+builder.Services.AddDbContext<AppDbContext>(options =>options.UseNpgsql(connectionString));
 
 // ===== 3. Configure JWT Authentication =====
-var jwtKey = builder.Configuration["Jwt:Key"] ?? "ReplaceWithYourStrongSecretKey!";
+var jwtKey = builder.Configuration["Jwt:Key"];
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "movieapp";
 var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "movieapp";
 
